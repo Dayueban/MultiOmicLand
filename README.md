@@ -36,7 +36,7 @@ The running of MultiOmicLand requires the input of metagenome, metabolome, host 
 3. `Host transcriptome`: The host transcriptome data should be an abundance matrix of genes (in Hugo Gene Symbol) by samples. This data can be obtained by RNA Sequencing followed by reads mapping (Hisat) and gene calling (RSEM, Subread), or by microarray-based approaches.
 4. `Host proteome`: The host proteome data should be an abundance matrix of proteins (in Hugo Gene Symbol or other IDs that can be mapped to Hugo Gene Symbol) by samples. This data can be otained by customized arrays or other metaproteome approaches.
 
-A demo of these data is provided in the "source.data" folder with the prefix 'Demo'.
+A demo of the above data (20 samples) is provided in the "source.data" folder with the suffix 'demo'.
 
 ## Workflow Structure and Usage
 The overall workflow is presented in the wrapper scripts pipeline.detail.R and pipeline.simpl.R that contained R scrripts needed to run the pipeline with a detailed or simplified description, respectively. 
