@@ -31,10 +31,10 @@ The required packages can be installed from CRAN by running the following lines 
 ## Data Requirement
 The running of MultiOmicLand requires the input of metagenome, metabolome, host transcriptome and proteome (optional) datasets in the form of data matrices (feature by sample), as well as metadata for demographic and clinical data of interest.
 
-1. Metagenome: The metagenomic data should be an abundance matrix of KEGG Orthologs (KOs) by samples. This data can be generated through reads-based (i.e. HUMAnN3) or contigs-based (i.e. assembly, gene prediction and KO mapping) approaches.
-2. Metabolome: The metabolomic data should be an abundance matrix of metabolites (in KEGG or HMDB ID) by samples. This data can be obtained through targeted or non-targeted metabolomic profiling.
-3. Host transcriptome: The host transcriptome data should be an abundance matrix of genes (in Hugo Gene Symbol) by samples. This data can be obtained by RNA Sequencing followed by reads mapping (Hisat) and gene calling (RSEM, Subread), or by microarray-based approaches.
-4. Host proteome: The host proteome data should be an abundance matrix of proteins (in Hugo Gene Symbol or other IDs that can be mapped to Hugo Gene Symbol) by samples. This data can be otained by customized arrays or other metaproteome approaches.
+1. `Metagenome`: The metagenomic data should be an abundance matrix of KEGG Orthologs (KOs) by samples. This data can be generated through reads-based (i.e. HUMAnN3) or contigs-based (i.e. assembly, gene prediction and KO mapping) approaches.
+2. `Metabolome`: The metabolomic data should be an abundance matrix of metabolites (in KEGG or HMDB ID) by samples. This data can be obtained through targeted or non-targeted metabolomic profiling.
+3. `Host transcriptome`: The host transcriptome data should be an abundance matrix of genes (in Hugo Gene Symbol) by samples. This data can be obtained by RNA Sequencing followed by reads mapping (Hisat) and gene calling (RSEM, Subread), or by microarray-based approaches.
+4. `Host proteome`: The host proteome data should be an abundance matrix of proteins (in Hugo Gene Symbol or other IDs that can be mapped to Hugo Gene Symbol) by samples. This data can be otained by customized arrays or other metaproteome approaches.
 
 A demo of these data is provided in the "source.data" folder with the prefix 'Demo'.
 
