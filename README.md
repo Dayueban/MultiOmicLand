@@ -35,9 +35,14 @@ The running of MultiOmicLand requires the input of metagenome, metabolome and ho
 2. Metabolome: The metabolomic data should be an abundance matrix of metabolites (in KEGG or HMDB ID) by samples. This data can be obtained through targeted or non-targeted metabolomic profiling.
 3. Host transcriptome: The host transcriptome data should be an abundance matrix of genes (in Hugo Gene Symbol) by samples. This data can be obtained by RNA Sequencing followed by reads mapping (Hisat) and gene calling (RSEM, Subread), or by microarray-based approaches.
 
-A small demo of these data is provided in the "source.data" folder with the prefix 'Demo'.
+A demo of these data is provided in the "source.data" folder with the prefix 'Demo'.
 
-## Workflow Structure
+## Workflow Structure and Usage
 The overall workflow is presented in the wrapper scripts pipeline.detail.R and pipeline.simpl.R that contained R scrripts needed to run the pipeline with a detailed or simplified description, respectively. 
 
-Under the working directory, there needs to be a "function" directory with all the R function files, a "source.data" directory with all the omic data, and a "database" directory that contains all the database-related files. The "function" directory can be downloaded as is. The "database" directory can be downloaded as is or customized by the users.
+Under the working directory, there needs to be a "function" directory with all the R function files to be sourced by the wrapper, a "source.data" directory with all the omic datasets, and a "database" directory that contains all the database-related files. The "function" directory can be downloaded as is. The "database" directory can be downloaded as is or customized by the users.
+
+To run MultiOmicLand, implement the package follow the instruction above, and run the scripts step-by-step in pipeline.detail.R or pipeline.simpl.R.
+
+## Note
+Users need to provide two files, to map the metabolite IDs in their own metabolomic data to the corresponding IDs in MetaCyc an STITCH databases. Two example files (cmpd2metabo.txt, metabo2CIDm.txt) are provided in the "database" folder.
