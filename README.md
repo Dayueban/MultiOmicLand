@@ -46,4 +46,4 @@ Under the working directory, there needs to be a "function" directory with all t
 To run MultiOmicLand, implement the package follow the instruction above, and run the scripts step-by-step in pipeline.detail.R or pipeline.simpl.R.
 
 ## Note
-Users need to provide two files, to map the metabolite IDs in their own metabolomic data to the corresponding IDs in MetaCyc and STITCH databases. Two example files (cmpd2metabo.txt, metabo2CIDm.txt) are provided in the "database" folder.
+Users need to provide two files, to map the metabolite IDs in their own metabolomic data to the corresponding IDs in MetaCyc and STITCH databases. The metabolite ID match can be performed by ID conversion (i.e. in MetaboAnalyst) and/or by compound structural search. Two example files (cmpd2metabo.txt, metabo2CIDm.txt) are provided in the "database" folder.
