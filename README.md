@@ -38,4 +38,6 @@ The running of MultiOmicLand requires the input of metagenome, metabolome and ho
 A small demo of these data is provided in the "source.data" folder with the prefix 'Demo'.
 
 ## Workflow Structure
-The overall workflow is presented in the wrapper scripts pipeline.detail.R and pipeline.simpl.R that contained R scrripts needed to run the pipeline with a detailed or simplified description, respectively. Under the working directory, there needs to be a "function" directory with all the R function files, a "source.data" directory with all the omic data, and a "database" directory that contains all the database-related files. The "function" directory can be downloaded as is. The "database" directory can be downloaded as is or customized by the users.
+The overall workflow is presented in the wrapper scripts pipeline.detail.R and pipeline.simpl.R that contained R scrripts needed to run the pipeline with a detailed or simplified description, respectively. 
+
+Under the working directory, there needs to be a "function" directory with all the R function files, a "source.data" directory with all the omic data, and a "database" directory that contains all the database-related files. The "function" directory can be downloaded as is. The "database" directory can be downloaded as is or customized by the users.
