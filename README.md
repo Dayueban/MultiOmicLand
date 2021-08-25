@@ -48,4 +48,4 @@ To run MultiOmicLand, implement the package follow the instruction above, and ru
 ## Note
 1. Users need to provide two files, to map the metabolite IDs in their own metabolomic data to the corresponding IDs in MetaCyc and STITCH databases. The metabolite ID match can be performed by ID conversion (i.e. in MetaboAnalyst) and/or by compound structural search. Two example files (cmpd2metabo.txt, metabo2CIDm.txt) are provided in the "database" folder.
 
-2. It is advised not to use any sample IDs start with numbers as R will prepend them with 'X', which could mess up some scripts in the workflow. Rename these sample IDs consistently in all input files at the beginning.
+2. It is advised not to use any sample IDs starting with numbers as R will prepend them with a 'X', which could mess up some scripts in the workflow. Rename these sample IDs consistently in all input files at the beginning.
