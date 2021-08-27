@@ -11,6 +11,7 @@ MultiOmicLand is an R workflow that performs integrative analysis for microbiome
 ## System Requirement
 MultiOmicLand is built on R 4.1.0. The running of MultiOmicLand depends on the following R packages and their dependencies:
 `pacman`, `gtools`, `verification`, `doParallel`, `foreach`, `magrittr`, `tibble`, `data.table`, `dplyr`, `reshape2`, `WGCNA`, `mediation`
+These packages should be updated to the latest version before running the workflow to avoid compatibility problem.
 
 ## Installation
 The required packages can be installed from CRAN by running the following lines in R:
