@@ -29,6 +29,7 @@ The required packages can be installed from CRAN by running the following lines 
    install.packages("WGCNA")
    install.packages("mediation")
    install.packages("tidyverse")
+   install.packages("ranger")
 ``` 
 ## Data Requirement
 The running of MultiOmicLand requires the input of metagenome, metabolome, host transcriptome and proteome (optional) datasets in the form of data matrices (feature by sample), as well as metadata for demographic and clinical data of interest.
