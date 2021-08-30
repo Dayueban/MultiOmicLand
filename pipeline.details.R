@@ -131,7 +131,7 @@ glm.sigModules(input.ds,  ## module quantification in the format of a data frame
 MetaG.sigMods <- glm.sigModules(input.ds = "1_DimReduction/metaG-combined.gct", 
                                 meta.file="source.data/meta.txt",
                                 glm.family = "binomial",
-                                glm.p = 0.5) ## use 0.25 for test data, default is 0.1
+                                glm.p = 0.25) ## use 0.25 for test data, default is 0.1
 
 # organize MetaB data into a dataframe with rownames being modules and colnames being samples
 MetaB.Mod.dat <- fread("1_DimReduction/metaB.module_eigengene.txt",data.table = F) 
@@ -143,7 +143,7 @@ MetaB.Mod.dat <- MetaB.Mod.dat %>% tibble::column_to_rownames("V1") %>% t() %>% 
 MetaB.sigMods <- glm.sigModules(input.ds = MetaB.Mod.dat,
                                 meta.file="source.data/meta.txt", 
                                 glm.family = "binomial",
-                                glm.p = 0.5)
+                                glm.p = 0.25)
 
 
 # organize HostT data into a dataframe with rownames being modules and colnames being samples
@@ -156,7 +156,7 @@ HostT.Mod.dat <- HostT.Mod.dat %>% tibble::column_to_rownames("V1") %>% t() %>% 
 HostT.sigMods <- glm.sigModules(input.ds = HostT.Mod.dat,
                                 meta.file="source.data/meta.txt",
                                 glm.family = "binomial",
-                                glm.p = 0.5)
+                                glm.p = 0.25)
 
 
 # identify HostP significant modules -------
@@ -200,7 +200,7 @@ MediationAnalysis_parallel(
 # MetaG modules affects NUE through MetaB modules  -----------
 
 MediationAnalysis_parallel(Treat.omic = "MetaG", Mediator.omic = "MetaB", 
-                           Treat.omic.input = "metaG_DR/metaG-combined.gct",
+                           Treat.omic.input = "1_DimReduction/metaG-combined.gct",
                            Mediator.omic.input = MetaB.Mod.dat,
                            meta.mediate = "source.data/meta.mediation.txt", Y = "NEU",
                            Treat.omic.sigModules = MetaG.sigMods,
@@ -288,7 +288,7 @@ MetaG.MetaB.link(
 MetaG.MetaB.links <- MetaG.MetaB.link( MetaG.MetaB.NEU_medres, 
                                        MetaG_module.feature_file =  "database/KEGG_modules.tab", 
                                        KO2METABO_file = "database/KO2METABO.lists.RData", ## this is an output
-                                       MetaB_module.feature_file = "DR_wgcna/metaB.module_assign.txt",
+                                       MetaB_module.feature_file = "1_DimReduction/metaB.module_assign.txt",
                                        MetaB_quantity_file = "source.data/metabolome.txt",
                                        MetaG_quantity_file = "source.data/metagenome.gct",
                                        metabo.KEGGmodule.match_file = "database/Metabo.KEGGModule.match.txt",
@@ -327,9 +327,9 @@ MetaB.HostT.links(
 # example of usage: ####
 MetaB.HostT.links <- MetaB.HostT.link(mediation.res = MetaB.HostT.NEU_medres,
                                       MetaB_quantity_file = "source.data/metabolome.txt",  
-                                      MetaB_module.feature_file = "DR_wgcna/metaB.module_assign.txt", 
+                                      MetaB_module.feature_file = "1_DimReduction/metaB.module_assign.txt", 
                                       HostT_quantity_file = "source.data/transcriptome.txt", 
-                                      HostT_module.feature_file = "DR_wgcna/hostT.module_assign.txt", 
+                                      HostT_module.feature_file = "1_DimReduction/hostT.module_assign.txt", 
                                       METABO2CIDm_file =  "database/metabo2CIDm.txt",  
                                       CIDm.receptor_file = "database/all_cidm_receptor.txt",  
 				      output.dir = "3_Biological_Links",
@@ -359,7 +359,7 @@ HostT.HostP.link(
 HostT.HostP.links <- HostT.HostP.link(mediation.res = HostT.HostP.NEU_medres,
                                       HostT_quantity_input = "source.data/transcriptome.txt",
                                       HostP_quantity_input = HostP.data,
-                                      HostT_module.feature_file = "DR_wgcna/hostT.module_assign.txt",
+                                      HostT_module.feature_file = "1_DimReduction/hostT.module_assign.txt",
                                       HostP_protein.gene_file = "database/protein_info.txt",
                                       Pthway2Gene_file = "database/pathway.gmt",
 				      output.dir = "3_Biological_Links",
@@ -489,7 +489,6 @@ for(kof in koFiles){
           min.overlap = 2, weight = 0, statistic = 'area.under.RES', output.score.type = "NES",nperm = 100,
           par = T,export.signat.gct = F,
           outputDir = "5_LOSO")
-  
 }
 
 
@@ -528,8 +527,8 @@ test.ModulePairs = fread("biological.links/MetaG.MetaB.modules.linked.txt", sele
 
 
 LOSO.results <- LOSO.delta.r(module.pairs = test.ModulePairs,
-                             MetaG.mod.before = "metaG_DR/metaG-combined.gct",
-                             MetaG.mod.after.dir = "LOSO_metaG_DR",
+                             MetaG.mod.before = "1_DimReduction/metaG-combined.gct",
+                             MetaG.mod.after.dir = "5_LOSO",
                              MetaB.mod.input = MetaB.Mod.dat,
-		             output.dir = "5_LOSO")  
+			     output.dir = "5_LOSO")  
 
