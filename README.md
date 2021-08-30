@@ -52,3 +52,9 @@ To run MultiOmicLand, implement the package follow the instruction above, and ru
 1. Users need to provide two files, to map the metabolite IDs in their own metabolomic data to the corresponding IDs in MetaCyc and STITCH databases. The metabolite match can be performed by ID conversion (i.e. in MetaboAnalyst) and/or by compound structural search. Two example files (cmpd2metabo.txt, metabo2CIDm.txt) are provided in the "database" folder.
 
 2. It is advised not to use any sample IDs starting with numbers as R will prepend them with a 'X', which could mess up some scripts in the workflow. Rename these sample IDs consistently in all input files at the beginning.
+
+3. There should be two metadata files in the source.data folder. One named as meta.txt, which contains disease phenotypic data under 'Disease' column and all potential confounders i.e. age, gender, smoking history, BMI etc. The other named as meta.mediation.txt, which contained all above columns as well as an additional column that the users wish to predict in the random forest analysis for multi-omic link prioritization (i.e. inflammation score, patient symptom, etc).
+
+4. Successful completion of this workflow should result in five directories: 1_DimReduction, 2_Mediation, 3_Biological_Links, 4_RandomForest, 5_LOSO.
+
+5. Any questions can be directed to Zhang Wang, wangz@m.scnu.edu.cn
