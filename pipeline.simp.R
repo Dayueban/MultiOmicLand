@@ -100,8 +100,8 @@ HostT.sigMods <- glm.sigModules(input.ds = HostT.Mod.dat,
 HostP.data <- data.frame(fread("source.data/sputum_cyto.txt"), row.names = 1 )
 HostP.sigFeatures <- glm.sigModules(input.ds = HostP.data,
                                     meta.file="source.data/meta.txt",
-                                    glm.family = "binomial",
-                                    glm.p = 0.25)
+                                glm.family = "binomial",
+                                glm.p = 0.25)
 
 ## #######################################################################################################
 ##
@@ -114,7 +114,7 @@ HostP.sigFeatures <- glm.sigModules(input.ds = HostP.data,
 # MetaG modules affects NUE through MetaB modules  -----------
 
 MediationAnalysis_parallel(Treat.omic = "MetaG", Mediator.omic = "MetaB", 
-                           Treat.omic.input = "metaG_DR/metaG-combined.gct",
+                           Treat.omic.input = "1_DimReduction/metaG-combined.gct",
                            Mediator.omic.input = MetaB.Mod.dat,
                            meta.mediate = "source.data/meta.mediation.txt", Y = "NEU",
                            Treat.omic.sigModules = MetaG.sigMods,
@@ -169,7 +169,7 @@ ko2metabo(dbDir = "database")
 MetaG.MetaB.links <- MetaG.MetaB.link( MetaG.MetaB.NEU_medres, 
                                        MetaG_module.feature_file =  "database/KEGG_modules.tab", 
                                        KO2METABO_file = "database/KO2METABO.lists.RData", ## this is an output
-                                       MetaB_module.feature_file = "DR_wgcna/metaB.module_assign.txt",
+                                       MetaB_module.feature_file = "1_DimReduction/metaB.module_assign.txt",
                                        MetaB_quantity_file = "source.data/metabolome.txt",
                                        MetaG_quantity_file = "source.data/metagenome.gct",
                                        metabo.KEGGmodule.match_file = "database/Metabo.KEGGModule.match.txt",
@@ -178,9 +178,9 @@ MetaG.MetaB.links <- MetaG.MetaB.link( MetaG.MetaB.NEU_medres,
 
 MetaB.HostT.links <- MetaB.HostT.link(mediation.res = MetaB.HostT.NEU_medres,
                                       MetaB_quantity_file = "source.data/metabolome.txt",  
-                                      MetaB_module.feature_file = "DR_wgcna/metaB.module_assign.txt", 
+                                      MetaB_module.feature_file = "1_DimReduction/metaB.module_assign.txt", 
                                       HostT_quantity_file = "source.data/transcriptome.txt", 
-                                      HostT_module.feature_file = "DR_wgcna/hostT.module_assign.txt", 
+                                      HostT_module.feature_file = "1_DimReduction/hostT.module_assign.txt", 
                                       METABO2CIDm_file =  "database/metabo2CIDm.txt",  
                                       CIDm.receptor_file = "database/all_cidm_receptor.txt",  
 				      output.dir = "3_Biological_Links",
@@ -189,7 +189,7 @@ MetaB.HostT.links <- MetaB.HostT.link(mediation.res = MetaB.HostT.NEU_medres,
 HostT.HostP.links <- HostT.HostP.link(mediation.res = HostT.HostP.NEU_medres,
                                       HostT_quantity_input = "source.data/transcriptome.txt",
                                       HostP_quantity_input = HostP.data,
-                                      HostT_module.feature_file = "DR_wgcna/hostT.module_assign.txt",
+                                      HostT_module.feature_file = "1_DimReduction/hostT.module_assign.txt",
                                       HostP_protein.gene_file = "database/protein_info.txt",
                                       Pthway2Gene_file = "database/pathway.gmt",
 				      output.dir = "3_Biological_Links",
@@ -261,7 +261,7 @@ rf.Performance_cls <- rf_MetaG.MetaB.HostT.Links(MetaG.Mod.input = "1_DimReducti
 
 LOSO.ko(geneDepth_file = "source.data/geneDepth.txt",  
         gene.ko_file = "source.data/ko_noeuk.txt",
-        bin.scaffold_file = "source.data/all_membership.txt",
+        bin.scaffold_file =  "source.data/all_membership.txt",
         bin.species_file = "source.data/bin_species.txt") # memory issue for large geneDepth file, can run on linux server
 
 
