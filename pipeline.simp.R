@@ -293,8 +293,8 @@ test.ModulePairs = fread("biological.links/MetaG.MetaB.modules.linked.txt", sele
 
 
 LOSO.results <- LOSO.delta.r(module.pairs = test.ModulePairs,
-                             MetaG.mod.before = "metaG_DR/metaG-combined.gct",
-                             MetaG.mod.after.dir = "LOSO_metaG_DR",
+                             MetaG.mod.before = "1_DimReduction/metaG-combined.gct",
+                             MetaG.mod.after.dir = "5_LOSO",
                              MetaB.mod.input = MetaB.Mod.dat,
 			     output.dir = "5_LOSO")  
 
