@@ -68,7 +68,7 @@ wgcna(input.ds = "source.data/metabolome.txt", output.prefix = "metaB", outputDi
 MetaG.sigMods <- glm.sigModules(input.ds = "1_DimReduction/metaG-combined.gct", 
                                 meta.file="source.data/meta.txt",
                                 glm.family = "binomial",
-                                glm.p = 0.5) ## use 0.25 for test data, default is 0.1
+                                glm.p = 0.25) ## use 0.25 for test data, default is 0.1
 
 # organize MetaB data into a dataframe with rownames being modules and colnames being samples
 MetaB.Mod.dat <- fread("1_DimReduction/metaB.module_eigengene.txt",data.table = F) 
@@ -80,7 +80,7 @@ MetaB.Mod.dat <- MetaB.Mod.dat %>% tibble::column_to_rownames("V1") %>% t() %>% 
 MetaB.sigMods <- glm.sigModules(input.ds = MetaB.Mod.dat,
                                 meta.file="source.data/meta.txt", 
                                 glm.family = "binomial",
-                                glm.p = 0.5)
+                                glm.p = 0.25)
 
 
 # organize HostT data into a dataframe with rownames being modules and colnames being samples
@@ -93,7 +93,7 @@ HostT.Mod.dat <- HostT.Mod.dat %>% tibble::column_to_rownames("V1") %>% t() %>% 
 HostT.sigMods <- glm.sigModules(input.ds = HostT.Mod.dat,
                                 meta.file="source.data/meta.txt",
                                 glm.family = "binomial",
-                                glm.p = 0.5)
+                                glm.p = 0.25)
 
 
 # identify HostP significant modules -------
