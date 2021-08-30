@@ -57,4 +57,4 @@ To run MultiOmicLand, implement the package follow the instruction above, and ru
 
 4. Successful completion of this workflow should result in five directories: 1_DimReduction, 2_Mediation, 3_Biological_Links, 4_RandomForest, 5_LOSO.
 
-5. Any questions can be directed to Zhang Wang, wangz@m.scnu.edu.cn
+5. Any questions can be directed to Zhang Wang, wangz@m.scnu.edu.cn.
