@@ -296,5 +296,5 @@ LOSO.results <- LOSO.delta.r(module.pairs = test.ModulePairs,
                              MetaG.mod.before = "metaG_DR/metaG-combined.gct",
                              MetaG.mod.after.dir = "LOSO_metaG_DR",
                              MetaB.mod.input = MetaB.Mod.dat,
-							 output.dir = "5_LOSO")  
+			     output.dir = "5_LOSO")  
 
