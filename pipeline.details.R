@@ -36,7 +36,8 @@ library(dplyr)
 library(reshape2)
 library(WGCNA)
 library(mediation)
-
+library(tidyverse)
+library(ranger)
 
 
 ## #########################################################################################
@@ -72,13 +73,13 @@ ssGSEA2(input.ds,              ## input data file in gct format, first column (N
         export.signat.gct   =T,   ## if TRUE gct files with expression values for each signature will be generated
         param.file          =T,   ## if TRUE parameter file will be generated  
         log.file            ='ssGEA2.log',
-        outputDir           ="metaG_DR")
+        outputDir           ="1_DimReduction")
 
 
 # example of usage  :  ####
 ssGSEA2(input.ds = "source.data/metagenome.demo.gct", 
         gene.set.databases = "source.data/KEGG_modules.gmt",
-        output.prefix = "metaG", outputDir = "metaG_DR",
+        output.prefix = "metaG", outputDir = "1_DimReduction",
         min.overlap = 2, weight = 0, statistic = 'area.under.RES', output.score.type = "NES", nperm = 50,
         export.signat.gct = F, 
         par = T, spare.cores = 5)
@@ -92,13 +93,13 @@ ssGSEA2(input.ds = "source.data/metagenome.demo.gct",
 wgcna(input.ds,   ## input data in txt format, where rows are features and columns are different samples.  
       min.ModuleSize = 10,  ## minimum number of features in a module 
       cut.Height     = 0.1, ## ????
-      outputDir      = "DR_wgcna", 
+      outputDir      = "1_DimReduction", 
       output.prefix  = "hostT"  )
 
 
 # example of usage  :  ####
-wgcna(input.ds = "source.data/transcriptome.demo.txt", output.prefix = "hostT", outputDir = "DR_wgcna")
-wgcna(input.ds = "source.data/metabolome.demo.txt", output.prefix = "metaB", outputDir = "DR_wgcna")
+wgcna(input.ds = "source.data/transcriptome.demo.txt", output.prefix = "hostT", outputDir = "1_DimReduction")
+wgcna(input.ds = "source.data/metabolome.demo.txt", output.prefix = "metaB", outputDir = "1_DimReduction")
 
 
 
@@ -121,47 +122,49 @@ glm.sigModules(input.ds,  ## module quantification in the format of a data frame
                                           ##"Gamma" or "inverse.gaussian" for continuous non-negative  Y;  
                                           ## "poisson" when Y is counts and when mean is equal to variance;  
                                           ## "quasipoisson" when Y is counts
-               glm.p = 0.2)   ## p-value in glm model to identify significant modules, default 0.2
+               glm.p = 0.1)   ## p-value in glm model to identify significant modules, default 0.1
 
 
 
 # example of usage:  ####
 # identify MetaG significant modules 
-MetaG.sigMods <- glm.sigModules(input.ds = "metaG_DR/metaG-combined.gct", 
-                                meta.file="source.data/meta.txt",
+MetaG.sigMods <- glm.sigModules(input.ds = "1_DimReduction/metaG-combined.gct", 
+                                meta.file="source.data/meta.demo.txt",
                                 glm.family = "binomial",
-                                glm.p = 0.1)
+                                glm.p = 0.5) ## use 0.25 for test data, default is 0.1
 
 # organize MetaB data into a dataframe with rownames being modules and colnames being samples
-MetaB.Mod.dat <- fread("DR_wgcna/metaB.module_eigengene.txt",data.table = F) %>%
-  dplyr::filter(!grepl("#",`#NAME`,fixed=T)) 
-MetaB.Mod.dat[-1] <- sapply(MetaB.Mod.dat[-1], as.numeric)
-MetaB.Mod.dat <- MetaB.Mod.dat %>% tibble::column_to_rownames("#NAME")
+MetaB.Mod.dat <- fread("1_DimReduction/metaB.module_eigengene.txt",data.table = F) 
+#  dplyr::filter(!grepl("#",`#NAME`,fixed=T)) 
+#MetaB.Mod.dat[-1] <- sapply(MetaB.Mod.dat[-1], as.numeric)
+MetaB.Mod.dat <- MetaB.Mod.dat %>% tibble::column_to_rownames("V1") %>% t() %>% data.frame()
 
 # then identify metaG significant modules 
 MetaB.sigMods <- glm.sigModules(input.ds = MetaB.Mod.dat,
-                                meta.file="source.data/meta.txt", 
-                                glm.family = "binomial")  
+                                meta.file="source.data/meta.demo.txt", 
+                                glm.family = "binomial",
+                                glm.p = 0.5)
 
 
 # organize HostT data into a dataframe with rownames being modules and colnames being samples
-HostT.Mod.dat <- fread("DR_wgcna/hostT.module_eigengene.txt",data.table = F) %>%
-  dplyr::filter(!grepl("#",`#NAME`,fixed=T)) 
-HostT.Mod.dat[-1] <- sapply(HostT.Mod.dat[-1], as.numeric)
-HostT.Mod.dat <- HostT.Mod.dat %>% tibble::column_to_rownames("#NAME")
+HostT.Mod.dat <- fread("1_DimReduction/hostT.module_eigengene.txt",data.table = F)
+#  dplyr::filter(!grepl("#",`#NAME`,fixed=T)) 
+#HostT.Mod.dat[-1] <- sapply(HostT.Mod.dat[-1], as.numeric)
+HostT.Mod.dat <- HostT.Mod.dat %>% tibble::column_to_rownames("V1") %>% t() %>% data.frame()
 
 # then identify HostT significant modules ------
 HostT.sigMods <- glm.sigModules(input.ds = HostT.Mod.dat,
-                                meta.file="source.data/meta.txt",
+                                meta.file="source.data/meta.demo.txt",
                                 glm.family = "binomial",
-                                glm.p = 0.1)
+                                glm.p = 0.5)
 
 
 # identify HostP significant modules -------
 HostP.data <- data.frame(fread("source.data/sputum_cyto.txt"), row.names = 1 )
 HostP.sigFeatures <- glm.sigModules(input.ds = HostP.data,
-                                    meta.file="source.data/meta.txt",
-                                    glm.family = "binomial") 
+                                    meta.file="source.data/meta.demo.txt",
+                                glm.family = "binomial",
+                                glm.p = 0.25)
 
 
 
@@ -169,8 +172,8 @@ HostP.sigFeatures <- glm.sigModules(input.ds = HostP.data,
 
 ## #######################################################################################################
 ##
-## medaition analysis 
-## Mediation analysis takes long for large amount of module pairs. suggest to run on a multi core server
+## mediation analysis 
+## Mediation analysis takes long for large amount of module pairs - suggest to run on a multi core server
 ##
 ## #######################################################################################################
 
@@ -199,12 +202,13 @@ MediationAnalysis_parallel(
 MediationAnalysis_parallel(Treat.omic = "MetaG", Mediator.omic = "MetaB", 
                            Treat.omic.input = "metaG_DR/metaG-combined.gct",
                            Mediator.omic.input = MetaB.Mod.dat,
-                           meta.mediate = "source.data/meta.mediation.NUE.txt", Y = "NUE",
+                           meta.mediate = "source.data/meta.demo.mediation.txt", Y = "NEU",
                            Treat.omic.sigModules = MetaG.sigMods,
                            Mediator.omic.sigModules = MetaB.sigMods,
                            log.file = "mediation.parallel.log",
+						   outputDir = "2_Mediation",
                            threads = 25)
-MetaG.MetaB.NUE_medres <- fread("E:/NutSync/papers/multi-omic_Rpackage/COPD_multiomics-main/PIPELINE/mediation.out/MetaG_affects_NUE_through_MetaB_parallel.txt")
+MetaG.MetaB.NEU_medres <- fread("2_Mediation/MetaG_affects_NEU_through_MetaB_parallel.txt")
 
 
 # MetaB modules affects NUE through HostT modules -----------
@@ -212,12 +216,13 @@ MetaG.MetaB.NUE_medres <- fread("E:/NutSync/papers/multi-omic_Rpackage/COPD_mult
 MediationAnalysis_parallel(Treat.omic = "MetaB", Mediator.omic = "HostT", 
                            Treat.omic.input = MetaB.Mod.dat,
                            Mediator.omic.input = HostT.Mod.dat,
-                           meta.mediate = "source.data/meta.mediation.NUE.txt", Y = "NUE",
+                           meta.mediate = "source.data/meta.demo.mediation.txt", Y = "NEU",
                            Treat.omic.sigModules = MetaB.sigMods,
                            Mediator.omic.sigModules = HostT.sigMods,
                            log.file = "mediation.parallel.log",
+						   outputDir = "2_Mediation",
                            threads = 25)
-MetaB.HostT.NUE_medres <- fread("mediation.out/MetaB_affects_NUE_through_HostT_parallel.txt")
+MetaB.HostT.NEU_medres <- fread("2_Mediation/MetaB_affects_NEU_through_HostT_parallel.txt")
 
 
 # HostT modules affects NUE through HostP features ----------- 
@@ -225,11 +230,12 @@ MetaB.HostT.NUE_medres <- fread("mediation.out/MetaB_affects_NUE_through_HostT_p
 MediationAnalysis_parallel(Treat.omic = "HostT", Mediator.omic = "HostP", 
                            Treat.omic.input = HostT.Mod.dat,
                            Mediator.omic.input = HostP.data,
-                           meta.mediate = "source.data/meta.mediation.NUE.txt", Y = "NUE",
+                           meta.mediate = "source.data/meta.mediation.NEU.txt", Y = "NEU",
                            Treat.omic.sigModules = HostT.sigMods,
                            Mediator.omic.sigModules = HostP.sigFeatures,
+						   outputDir = "2_Mediation",
                            threads = 30)
-HostT.HostP.NUE_medres <- fread("mediation.out/HostT_affects_NUE_through_HostP_parallel.txt")
+HostT.HostP.NEU_medres <- fread("2_Mediation/HostT_affects_NEU_through_HostP_parallel.txt")
 
 
 
@@ -279,14 +285,15 @@ MetaG.MetaB.link(
 
 
 # example of usage: ####
-MetaG.MetaB.links <- MetaG.MetaB.link( mediation.res, 
+MetaG.MetaB.links <- MetaG.MetaB.link( MetaG.MetaB.NEU_medres, 
                                        MetaG_module.feature_file =  "database/KEGG_modules.tab", 
-                                       KO2METABO_file = "database/KO2METABO.lists.RData",
+                                       KO2METABO_file = "database/KO2METABO.lists.RData", ## this is an output
                                        MetaB_module.feature_file = "DR_wgcna/metaB.module_assign.txt",
-                                       MetaB_quantity_file = "source.data/metabolome_sub.txt",
-                                       MetaG_quantity_file = "source.data/metagenome_rel_asinsqrt_zscore.gct",
+                                       MetaB_quantity_file = "source.data/metabolome.demo.txt",
+                                       MetaG_quantity_file = "source.data/metagenome.demo.gct",
                                        metabo.KEGGmodule.match_file = "database/Metabo.KEGGModule.match.txt",
-                                       ACME.p.co = 1)  
+									   output.dir = "3_Biological_Links",
+                                       ACME.p.co = 0.25)  
 
 
 
@@ -318,14 +325,15 @@ MetaB.HostT.links(
 
 
 # example of usage: ####
-MetaB.HostT.links <- MetaB.HostT.link(mediation.res = MetaB.HostT.NUE_medres,
-                                      MetaB_quantity_file = "source.data/metabolome_sub.txt",  
+MetaB.HostT.links <- MetaB.HostT.link(mediation.res = MetaB.HostT.NEU_medres,
+                                      MetaB_quantity_file = "source.data/metabolome.demo.txt",  
                                       MetaB_module.feature_file = "DR_wgcna/metaB.module_assign.txt", 
-                                      HostT_quantity_file = "source.data/transcriptome.txt", 
+                                      HostT_quantity_file = "source.data/transcriptome.demo.txt", 
                                       HostT_module.feature_file = "DR_wgcna/hostT.module_assign.txt", 
                                       METABO2CIDm_file =  "database/metabo2CIDm.txt",  
                                       CIDm.receptor_file = "database/all_cidm_receptor.txt",  
-                                      ACME.p.co = 1)  
+									  output.dir = "3_Biological_Links",
+                                      ACME.p.co = 0.25)  
 
 
 # hostT-hostP links ------------
@@ -348,17 +356,92 @@ HostT.HostP.link(
  
 
 # example of usage: ####
-HostT.HostP.links <- HostT.HostP.link(mediation.res = HostT.HostP.NUE_medres,
-                                      HostT_quantity_input = "source.data/transcriptome.txt",
+HostT.HostP.links <- HostT.HostP.link(mediation.res = HostT.HostP.NEU_medres,
+                                      HostT_quantity_input = "source.data/transcriptome.demo.txt",
                                       HostP_quantity_input = HostP.data,
                                       HostT_module.feature_file = "DR_wgcna/hostT.module_assign.txt",
                                       HostP_protein.gene_file = "database/protein_info.txt",
                                       Pthway2Gene_file = "database/pathway.gmt",
-                                      ACME.p.co = 1)   # 通过少量数据调试,正在linux运行完整数据 
+									  output.dir = "3_Biological_Links",
+                                      ACME.p.co = 0.25)    
 
 
+### #######################################################################################################
+##
+##  Random forest
+##
+## #######################################################################################################
+
+# first identify the MetaG-MetaB-HostT links ---------
+
+MetaG.MetaB.links <- fread("3_Biological_Links/MetaG.MetaB.modules.linked.txt",select = 1, col.names = "V1") %>% unique() %>%
+  mutate(MetaG.module = sapply(strsplit(V1, "_", fixed = T), "[[", 1),
+         MetaB.module = sapply(strsplit(V1, "_", fixed = T), "[[", 2))
 
 
+MetaB.HostT.links <- fread("3_Biological_Links/MetaB.HostT.modules.linked.txt",select = 1, col.names = "V1")  %>% 
+  unique()  %>% # not unique !! need to check link script
+  mutate(MetaB.module = sapply(strsplit(V1, "_", fixed = T), "[[", 1),
+         HostT.module = sapply(strsplit(V1, "_", fixed = T), "[[", 2))
+
+MetaG.MetaB.HostT.links <- NULL
+for(i in c(1:nrow(MetaG.MetaB.links)) ){
+  
+  gb.pair = MetaG.MetaB.links$V1[i]
+  
+  bm = strsplit(gb.pair, "_", fixed = T)[[1]][2]
+  
+  bt.pairs <- MetaB.HostT.links$V1[which(MetaB.HostT.links$MetaB.module == bm)] 
+  
+  tmp <- expand.grid(gb.pair, bt.pairs)
+  
+  MetaG.MetaB.HostT.links <- bind_rows(MetaG.MetaB.HostT.links, tmp)
+  
+} 
+
+MetaG.MetaB.HostT.links <- MetaG.MetaB.HostT.links %>% mutate(Var1 = as.character(Var1), Var2 = as.character(Var2)) %>%
+  mutate(MetaG = sapply( strsplit(Var1,"_",fixed = T), "[[", 1) ,
+         MetaB = sapply( strsplit(Var1,"_",fixed = T), "[[", 2) , 
+         HostT = sapply( strsplit(Var2,"_",fixed = T), "[[", 2))
+
+
+# then create a predicted variable data frame ----- 
+meta <- fread("source.data/meta.demo.mediation.txt") %>% select(SampleID, NEU) 
+#meta <- fread("source.data/meta.demo.txt") %>% select(SampleID, Disease) #%>% mutate(Y = as.factor(as.character(Disease)))
+
+GZ.sp <-meta$SampleID[!grepl("^Z", meta$SampleID)] 
+
+
+# last, perform random forest analysis -----------
+#' The rf_MetaG.MetaB.HostT.Links function allows you to evaluate the accuracy of predicting e.g. a clinical variable by the MetaG.MetaB.HostT links through random forest modeling.  
+#' This function generates a performance table recording prediction performance of each MetaG.MetaB.HostT link, as rsme and rsq for "regression", 
+#' and as accuracy and roc_auc for "classification". 
+
+# explaination of arguments : ####
+rf_MetaG.MetaB.HostT.Links(
+  MetaG.Mod.input,          ##    the gct file generated by ssGSEA2 or a data frame with rownames being the modules and colnames being the samples
+  MetaB.Mod.input,          ##    the txt file generated by wgcna or a data frame with rownames being the modules and colnames being the samples
+  HostT.Mod.input,          ##    the txt file generated by wgcna or a data frame with rownames being the modules and colnames being the samples
+  MetaG.MetaB.HostT.link.df,       ##    a data frame with columns named "MetaG", "MetaB, and "HostT" 
+  PredictedVar.input,       ##    a data frame with one column named "SampleID" and another column giving the predicted variable (should be factor if the prediction is classification)
+  PredictionType,           ##    the type of prediction, "regression" or "classification". 
+  Training.samples,         ##    samples used as training set. If defined, all other samples will be used for validation. If not defined, the total samples will be randomly split into training set (3/4) and validation set (1/4) 
+  log.file,                 ##    default "rf_by.links.log"
+  output.dir,               ##    default "rf_performance"
+  output.prefix             ##    default ""
+)
+  
+
+# example of usage: ####
+
+rf.Performance_cls <- rf_MetaG.MetaB.HostT.Links(MetaG.Mod.input = "1_DimReduction/metaG-combined.gct",
+                                                 MetaB.Mod.input = MetaB.Mod.dat,  
+                                                 HostT.Mod.input = HostT.Mod.dat,  
+                                                 MetaG.MetaB.HostT.link.df = MetaG.MetaB.HostT.links,  
+                                                 PredictedVar.input = meta,   
+                                                 PredictionType = "regression",  
+												 output.dir = "4_RandomForest",
+                                                 Training.samples = GZ.sp) 
 
 ## #######################################################################################################
 ##
@@ -369,10 +452,9 @@ HostT.HostP.links <- HostT.HostP.link(mediation.res = HostT.HostP.NUE_medres,
 # 1) generates KO abundance files for each species excluded
 
 
-#' The LOSO.ko function allows you to perform LOSO (leave one species out ) analysis. 
+#' The LOSO.ko function allows you to perform LOSO (leave one species out) analysis. 
 #' Users should provide 1) gene quantification data, 2) information about Species annotaion of bins, 3) connection between bins and genes through scaffold ids, and 4) KO annotaion of genes. 
 #' This function generates one KO abundance file each time after excluding one Species from the gene quantification data.  
-#' Resulting gct files are stored in the "LOSO_ko.abund" directory.
 
 # explaination of arguments : ####
 
@@ -386,18 +468,18 @@ LOSO.ko(
 
 
 # example of usage: ####
-LOSO.ko(geneDepth_file = "F:/temp.data/geneDepth.txt",  
-        gene.ko_file = "LOSO/ko_noeuk.txt",
-        bin.scaffold_file =  "LOSO/all_membership.txt",
-        bin.species_file = "LOSO/bin_species.txt") # memory issue for large geneDepth file, can run on linux server
+LOSO.ko(geneDepth_file = "source.data/geneDepth.txt",  
+        gene.ko_file = "source.data/ko_noeuk.txt",
+        bin.scaffold_file =  "source.data/all_membership.txt",
+        bin.species_file = "source.data/bin_species.txt") # memory issue for large geneDepth file, can run on linux server
 
 
 
 
 # 2) perform ssGSEA for each ko abundance file
-if(!dir.exists("LOSO_metaG_DR")) dir.create("LOSO_metaG_DR")
+if(!dir.exists("5_LOSO")) dir.create("5_LOSO")
 
-koFiles <- list.files("LOSO_ko.abund/", full.names = T)
+koFiles <- list.files("5_LOSO/", full.names = T)
 for(kof in koFiles){
   specs <-sub("\\.gct$", "", sub("^ko\\.abund_rm\\.", "", basename(kof)) ) 
   
@@ -406,7 +488,7 @@ for(kof in koFiles){
           output.prefix = specs,
           min.overlap = 2, weight = 0, statistic = 'area.under.RES', output.score.type = "NES",nperm = 100,
           par = T,export.signat.gct = F,
-          outputDir = "LOSO_metaG_DR")
+          outputDir = "5_LOSO")
   
 }
 
@@ -434,7 +516,6 @@ LOSO.delta.r(
   error.file,             ##  to record error in reading gct files, default "LOSO.deltaR.error.txt"
   output.dir,             ##  default "LOSO.deltaR.out",
   output.prefix,          ##  default  "" 
-  
 )
  
 
@@ -449,84 +530,6 @@ test.ModulePairs = fread("biological.links/MetaG.MetaB.modules.linked.txt", sele
 LOSO.results <- LOSO.delta.r(module.pairs = test.ModulePairs,
                              MetaG.mod.before = "metaG_DR/metaG-combined.gct",
                              MetaG.mod.after.dir = "LOSO_metaG_DR",
-                             MetaB.mod.input = MetaB.Mod.dat)  
-
-
-### #######################################################################################################
-##
-##  Random forest
-##
-## #######################################################################################################
-
-# first identify the MetaG-MetaB-HostT  links ---------
-
-MetaG.MetaB.links <- fread("biological.links/MetaG.MetaB.modules.linked.txt",select = 1, col.names = "V1") %>% unique() %>%
-  mutate(MetaG.module = sapply(strsplit(V1, "_", fixed = T), "[[", 1),
-         MetaB.module = sapply(strsplit(V1, "_", fixed = T), "[[", 2))
-
-
-MetaB.HostT.links <- fread("biological.links/MetaB.HostT.modules.linked--CIDmNotFiltered.txt",select = 1, col.names = "V1")  %>% 
-  unique()  %>% # not unique !! need to check link script
-  mutate(MetaB.module = sapply(strsplit(V1, "_", fixed = T), "[[", 1),
-         HostT.module = sapply(strsplit(V1, "_", fixed = T), "[[", 2))
-
-MetaG.MetaB.HostT.links <- NULL
-for(i in c(1:nrow(MetaG.MetaB.links)) ){
-  
-  gb.pair = MetaG.MetaB.links$V1[i]
-  
-  bm = strsplit(gb.pair, "_", fixed = T)[[1]][2]
-  
-  bt.pairs <- MetaB.HostT.links$V1[which(MetaB.HostT.links$MetaB.module == bm)] 
-  
-  tmp <- expand.grid(gb.pair, bt.pairs)
-  
-  MetaG.MetaB.HostT.links <- bind_rows(MetaG.MetaB.HostT.links, tmp)
-  
-} 
-
-
-
-MetaG.MetaB.HostT.links <- MetaG.MetaB.HostT.links %>% mutate(Var1 = as.character(Var1), Var2 = as.character(Var2)) %>%
-  mutate(MetaG = sapply( strsplit(Var1,"_",fixed = T), "[[", 1) ,
-         MetaB = sapply( strsplit(Var1,"_",fixed = T), "[[", 2) , 
-         HostT = sapply( strsplit(Var2,"_",fixed = T), "[[", 2))
-
-
-# then create a predicted variable data frame ----- 
-meta <- fread("source.data/meta.mediation.NUE.txt") %>% select(SampleID, NUE) 
-meta <- fread("source.data/meta.txt") %>% select(SampleID, Y) %>% mutate(Y = as.factor(as.character(Y)))
-
-GZ.sp <-meta$SampleID[!grepl("^Z", meta$SampleID)] 
-
-
-# last, perform random forest analysis -----------
-#' The rf_MetaG.MetaB.HostT.Links function allows you to evaluate the accuracy of predicting e.g. a clinical variable by the MetaG.MetaB.HostT links through random forest modeling.  
-#' This function generates a performance table recording prediction performance of each MetaG.MetaB.HostT link, as rsme and rsq for "regression", 
-#' and as accuracy and roc_auc for "classification". 
-
-# explaination of arguments : ####
-rf_MetaG.MetaB.HostT.Links(
-  MetaG.Mod.input,          ##    the gct file generated by ssGSEA2 or a data frame with rownames being the modules and colnames being the samples
-  MetaB.Mod.input,          ##    the txt file generated by wgcna or a data frame with rownames being the modules and colnames being the samples
-  HostT.Mod.input,          ##    the txt file generated by wgcna or a data frame with rownames being the modules and colnames being the samples
-  MetaG.MetaB.HostT.link.df,       ##    a data frame with columns named "MetaG", "MetaB, and "HostT" 
-  PredictedVar.input,       ##    a data frame with one column named "SampleID" and another column giving the predicted variable (should be factor if the prediction is classification)
-  PredictionType,           ##    the type of prediction, "regression" or "classification". 
-  Training.samples,         ##    samples used as training set. If defined, all other samples will be used for validation. If not defined, the total samples will be randomly split into training set (3/4) and validation set (1/4) 
-  log.file,                 ##    default "rf_by.links.log"
-  output.dir,               ##    default "rf_performance"
-  output.prefix             ##    default ""
-)
-  
-
-# example of usage: ####
-
-rf.Performance_cls <- rf_MetaG.MetaB.HostT.Links(MetaG.Mod.input = "metaG_DR/metaG-combined.gct",
-                                                 MetaB.Mod.input = MetaB.Mod.dat,  
-                                                 HostT.Mod.input = HostT.Mod.dat,  
-                                                 MetaG.MetaB.HostT.link.df = MetaG.MetaB.HostT.links,  
-                                                 PredictedVar.input = meta,   
-                                                 PredictionType = "regression",  
-                                                 Training.samples = GZ.sp) 
+                             MetaB.mod.input = MetaB.Mod.dat,
+							 output.dir = "5_LOSO")  
 
