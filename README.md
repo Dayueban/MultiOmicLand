@@ -41,6 +41,8 @@ The running of MultiOmicLand requires the input of metagenome, metabolome, host 
 
 A demo of the above data is provided in the "source.data" folder.
 
+The full data for the COPD multi-omic paper is available in the "data" folder.
+
 ## Workflow Structure and Usage
 The overall workflow is presented in the wrapper scripts pipeline.detail.R and pipeline.simpl.R that contained R scrripts needed to run the pipeline with a detailed or simplified description, respectively. 
 
