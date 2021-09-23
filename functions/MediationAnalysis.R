@@ -92,12 +92,12 @@ MediationAnalysis <-
         
         dat <- dat %>% filter(!is.na(Y)) %>% filter(!is.na(Treat)) %>% filter(!is.na(Mediator))
         
-        #model.m=lm(Mediator ~ Treat+Age+Gender+CurrentSmoking+ICS,dat)
+        #model.m=lm(Mediator ~ Treat+Site+Age+Gender+CurrentSmoking+ICS,dat)
         model.m = lm(as.formula( paste("Mediator ~ Treat + ", 
                                        paste(colnames(dat)[!(colnames(dat) %in% c("SampleID","Y","Mediator","Treat"))], collapse = " + "),
                                        sep = "") ), data = dat)
         
-        #model.y=lm(Y~Treat+Mediator+Age+Gender+CurrentSmoking+ICS,dat)
+        #model.y=lm(Y~Treat+Mediator+Site+Age+Gender+CurrentSmoking+ICS,dat)
         model.y = lm(as.formula( paste("Y ~ Treat + Mediator + ", 
                                        paste(colnames(dat)[!(colnames(dat) %in% c("SampleID","Y","Mediator","Treat"))], collapse = " + "),
                                        sep = "") ), data = dat)
