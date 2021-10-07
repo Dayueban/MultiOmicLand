@@ -10,7 +10,7 @@ MultiOmicLand is an R workflow that performs integrative analysis for microbiome
 
 ![image](https://github.com/wangzlab/MultiOmicLand/blob/main/images/Screenshot.png)
 
-**A.** A sequential mediation analysis to assess in silico causality between microbiome, metabolome, host omics and phenotype of interest (i.e. inflammatory status). **B.** An automated pipeline to identify microbiome-host interaction links in multi-omic modules leveraging microbial genetic information and established metabolite-human gene pairs.
+**a.** A sequential mediation analysis to assess in silico causality between microbiome, metabolome, host omics and phenotype of interest (i.e. inflammatory status). **b.** An automated pipeline to identify microbiome-host interaction links in multi-omic modules leveraging microbial genetic information and established metabolite-human gene pairs.
 
 ## System Requirement
 MultiOmicLand is built on R 4.1.0. The running of MultiOmicLand depends on the following R packages and their dependencies:
